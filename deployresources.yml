@@ -32,7 +32,7 @@
       become: 'yes'
       notify:
        - restart apache2
-    - name: configure apache2 default config  to listen on port 8080
+    - name: configure virtual host to listen on port 8080
       lineinfile: >-
         dest=/etc/apache2/sites-enabled/000-default.conf
         regexp="^<VirtualHost \*:80>"
