@@ -1,0 +1,48 @@
+- hosts: webserver_resources
+  tasks:
+    - name: To install apache webserver
+      apt: name=apache2 update_cache=yes state=latest
+      become: 'yes'
+    - name: To enable rewrite
+      apache2_module: name=rewrite state=present
+      become: 'yes'
+      notify:
+        - restart apache2
+    - name: To utilize the html from the given src
+      ansible.builtin.copy:
+        src: index.html
+        dest: /var/www/html/index.html
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+      become: yes
+    - name: update server number in index.html
+      lineinfile: >-
+        dest=/var/www/html/index.html
+        regexp="__server__"
+        line="{{ server }}"
+        state=present
+      become: 'yes'
+    - name: configure apache2 to listen on port 8080
+      lineinfile: >-
+        dest=/etc/apache2/ports.conf 
+        regexp="^Listen 80"
+        line="Listen 8080"
+        state=present
+      become: 'yes'
+      notify:
+       - restart apache2
+    - name: configure apache2 default config  to listen on port 8080
+      lineinfile: >-
+        dest=/etc/apache2/sites-enabled/000-default.conf
+        regexp="^<VirtualHost \*:80>"
+        line="<VirtualHost \*:8080>"
+        state=present
+      become: 'yes'
+      notify:
+        - restart apache2
+  handlers:
+    - name: restart apache2
+      become: 'yes'
+      service: name=apache2 state=restarted
+                                                
