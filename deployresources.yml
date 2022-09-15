@@ -3,11 +3,6 @@
     - name: To install apache webserver
       apt: name=apache2 update_cache=yes state=latest
       become: 'yes'
-    - name: To enable rewrite
-      apache2_module: name=rewrite state=present
-      become: 'yes'
-      notify:
-        - restart apache2
     - name: To utilize the html from the given src
       ansible.builtin.copy:
         src: index.html
@@ -20,7 +15,6 @@
       lineinfile:  dest=/var/www/html/index.html regexp="__server__" line="{{ server }}" state=present
       become: 'yes'
   handlers:
-    - name: restart apache2
+    - name: irestart apache2
       become: 'yes'
-      service: name=apache2 state=restarted
-                                                
+      service: name=apache2 state=restarted 
